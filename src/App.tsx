@@ -13,11 +13,13 @@ import {
   Pressable,
   ScrollView,
   useDisclose,
+  VStack,
 } from 'native-base';
-import {SafeAreaView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Header} from './Header';
 import PlayerCard from './PlayerCard';
+import Chart from './Chart';
+import {ColorSchemeType} from 'native-base/lib/typescript/components/types';
 
 const Sound = require('react-native-sound');
 Sound.setCategory('Playback');
@@ -25,7 +27,7 @@ Sound.setCategory('Playback');
 const presetSounds = [
   {
     amount: 1,
-    sound: new Sound('./sounds/ergue_o_braco.mp3', Sound.MAIN_BUNDLE),
+    sound: new Sound('./sounds/toco_y_me_voy.mp3', Sound.MAIN_BUNDLE),
   },
   {
     amount: 4,
@@ -63,10 +65,11 @@ const config = {
 
 const customTheme = extendTheme({config});
 
-type player = {
+export type player = {
   name: string;
   amount: number;
-  color: string;
+  color: ColorSchemeType;
+  activity: number[];
 };
 
 const initialData = {players: {}, total: 82, stored: false};
@@ -94,6 +97,13 @@ const App = () => {
     AsyncStorage.setItem('data', JSON.stringify(data));
   }, [data]);
 
+  const resetCount = () => {
+    setData(curr => ({
+      ...curr,
+      players: {},
+    }));
+  };
+
   const upPlayersCount = (name: string) => {
     const newAmount = data.players[name].amount + 1;
 
@@ -103,6 +113,17 @@ const App = () => {
       soundToPlay.sound.play();
     }
 
+    const now = new Date(),
+      then = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+      ),
+      msSinceMidnight = now.getTime() - then.getTime();
+
     setData(curr => ({
       ...curr,
       players: {
@@ -110,6 +131,7 @@ const App = () => {
         [name]: {
           ...curr.players[name],
           amount: newAmount,
+          activity: [...curr.players[name].activity, msSinceMidnight],
         },
       },
     }));
@@ -133,6 +155,7 @@ const App = () => {
     <NativeBaseProvider theme={customTheme}>
       <Box p={5}>
         <Header
+          onReset={resetCount}
           onAdd={({player, color}) =>
             setData(curr => ({
               ...curr,
@@ -142,23 +165,40 @@ const App = () => {
                   name: player,
                   amount: 0,
                   color: color,
+                  activity: [],
                 },
               },
             }))
           }
         />
         <HStack space={5} w={'100%'} h={'100%'}>
-          <Flex flex={1} flexDirection={'row'} flexWrap={'wrap'}>
-            {Object.values(data?.players || []).map((player, index) => (
-              <PlayerCard
-                key={index}
-                name={player.name}
-                color={player.color}
-                amount={player.amount}
-                onTap={() => upPlayersCount(player.name)}
-              />
-            ))}
-          </Flex>
+          <ScrollView flex={1} pt={'10px'}>
+            <VStack
+              flex={1}
+              justifyContent={'space-between'}
+              height={'80%'}
+              overflow={'visible'}>
+              <Flex flexDirection={'row'} flexWrap={'wrap'}>
+                {Object.values(data?.players || []).length === 0 && (
+                  <Heading opacity={0.3}>Start By Adding Players</Heading>
+                )}
+                {Object.values(data?.players || []).map((player, index) => (
+                  <PlayerCard
+                    key={index}
+                    name={player.name}
+                    color={player.color}
+                    amount={player.amount}
+                    onTap={() => upPlayersCount(player.name)}
+                  />
+                ))}
+              </Flex>
+              <Box h={'500px'}>
+                {data.stored && Object.values(data.players).length > 0 && (
+                  <Chart data={data} />
+                )}
+              </Box>
+            </VStack>
+          </ScrollView>
           <Flex alignItems={'center'} maxW={40} px={4}>
             <Pressable
               onLongPress={kegTotalDisclosure.onOpen}

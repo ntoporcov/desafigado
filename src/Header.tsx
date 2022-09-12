@@ -8,6 +8,7 @@ import {
   Input,
   KeyboardAvoidingView,
   Modal,
+  Pressable,
   SimpleGrid,
   useDisclose,
   VStack,
@@ -37,8 +38,10 @@ const colors: ColorSchemeType[] = [
 
 export const Header = ({
   onAdd,
+  onReset,
 }: {
   onAdd: (x: {player: string; color: string}) => void;
+  onReset: () => void;
 }) => {
   const [newplayer, setNewPlayer] = useState('');
   const [playerColor, setPlayerColor] = useState<string>();
@@ -50,9 +53,11 @@ export const Header = ({
       justifyContent={'space-between'}
       alignItems={'center'}
       mb={5}>
-      <Heading letterSpacing={1} size={'3xl'}>
-        Desafígado 2022
-      </Heading>
+      <Pressable onLongPress={onReset} delayLongPress={5000}>
+        <Heading letterSpacing={1} size={'3xl'}>
+          Desafígado 2022
+        </Heading>
+      </Pressable>
       <HStack space={5}>
         <Button
           onPress={modalState.onOpen}

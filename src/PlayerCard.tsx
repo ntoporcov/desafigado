@@ -38,7 +38,7 @@ const PlayerCard = (props: PlayerCardProps) => {
       _light={{bgColor: 'gray.100'}}
       _dark={{bgColor: 'gray.900'}}
       rounded={'lg'}
-      minWidth={'300px'}
+      minWidth={'250px'}
       flexGrow={2}
       mr={5}
       mb={5}>
@@ -47,7 +47,7 @@ const PlayerCard = (props: PlayerCardProps) => {
           {props.name}
         </Heading>
         <Heading
-          size={'4xl'}
+          size={'3xl'}
           textAlign={'center'}
           _light={{color: props.color + '.500'}}
           _dark={{color: props.color + '.300'}}>
