@@ -39,7 +39,9 @@ const colors: ColorSchemeType[] = [
 export const Header = ({
   onAdd,
   onReset,
+  playerNames,
 }: {
+  playerNames: string[];
   onAdd: (x: {player: string; color: string}) => void;
   onReset: () => void;
 }) => {
@@ -76,18 +78,20 @@ export const Header = ({
         }}>
         <KeyboardAvoidingView
           behavior={'position'}
-          minWidth={'100%'}
           pb={10}
           alignItems={'center'}>
           <Modal.Content>
             <Modal.Body>
               <Heading mb={5}>Add Player</Heading>
               <VStack space={5}>
-                <FormControl>
+                <FormControl isInvalid={playerNames.includes(newplayer)}>
                   <HStack justifyContent={'space-between'}>
                     <FormControl.Label>Player Name</FormControl.Label>
                   </HStack>
                   <Input value={newplayer} onChangeText={setNewPlayer} />
+                  <FormControl.ErrorMessage>
+                    Can't have two players with same name
+                  </FormControl.ErrorMessage>
                 </FormControl>
                 <FormControl>
                   <HStack justifyContent={'space-between'}>
@@ -116,7 +120,11 @@ export const Header = ({
                     modalState.onClose();
                   }}
                   mt={10}
-                  isDisabled={!newplayer || !playerColor}>
+                  isDisabled={
+                    !newplayer ||
+                    !playerColor ||
+                    playerNames.includes(newplayer)
+                  }>
                   Add Player
                 </Button>
               </VStack>

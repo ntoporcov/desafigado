@@ -8,6 +8,7 @@ import {
   HStack,
   Input,
   KeyboardAvoidingView,
+  Image,
   Modal,
   NativeBaseProvider,
   Pressable,
@@ -38,12 +39,20 @@ const presetSounds = [
     sound: new Sound('./sounds/e_penta.mp3', Sound.MAIN_BUNDLE),
   },
   {
-    amount: 8,
-    sound: new Sound('./sounds/quem_e_q_sobe.mp3', Sound.MAIN_BUNDLE),
+    amount: 7,
+    sound: new Sound('./sounds/garotao.mp3', Sound.MAIN_BUNDLE),
   },
   {
     amount: 10,
-    sound: new Sound('./sounds/garotao.mp3', Sound.MAIN_BUNDLE),
+    sound: new Sound('./sounds/Neymar_e_o_nome_dele.mp3', Sound.MAIN_BUNDLE),
+  },
+  {
+    amount: 11,
+    sound: new Sound('./sounds/vairomario.mp3', Sound.MAIN_BUNDLE),
+  },
+  {
+    amount: 12,
+    sound: new Sound('./sounds/aicomplica.mp3', Sound.MAIN_BUNDLE),
   },
   {
     amount: 15,
@@ -56,6 +65,54 @@ const presetSounds = [
       Sound.MAIN_BUNDLE,
     ),
   },
+];
+
+const normalSounds = [
+  new Sound(
+    './sounds/e_bom_ganhar_da_argentina_e_melhor.mp3',
+    Sound.MAIN_BUNDLE,
+  ),
+  new Sound(
+    './sounds/essa_vou_te_contar_amigo_q_sufoco.mp3',
+    Sound.MAIN_BUNDLE,
+  ),
+  new Sound('./sounds/ergue_o_braco.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/kanu_perigoso.mp3', Sound.MAIN_BUNDLE),
+  new Sound(
+    './sounds/mas_e_muito_bom_demais_ogoleiro_alemao.mp3',
+    Sound.MAIN_BUNDLE,
+  ),
+  new Sound('./sounds/olhogol.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/sao_marcos.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/vaibebeto.mp3', Sound.MAIN_BUNDLE),
+].flatMap(sound => {
+  return [sound, sound, sound, sound];
+});
+
+const rareSounds = [
+  new Sound('./sounds/olhaoqueaconteceu.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/quem_e_q_sobe.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/sai_q_e_sua_taffarel.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/nao_vale.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/naredepeloladodefora.mp3', Sound.MAIN_BUNDLE),
+].flatMap(sound => {
+  return [sound, sound];
+});
+
+const epicSounds = [
+  new Sound('./sounds/ninguem_sabe_o_q_faz.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/fisica.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/hajacoracao.mp3', Sound.MAIN_BUNDLE),
+  new Sound('./sounds/edobrasil.mp3', Sound.MAIN_BUNDLE),
+];
+
+const randomSounds = [...normalSounds, ...rareSounds, ...epicSounds];
+
+const galvaos = [
+  require('./images/galvao1.png'),
+  require('./images/galvao2.jpeg'),
+  require('./images/galvao3.jpeg'),
+  require('./images/galvao4.jpeg'),
 ];
 
 // Define the config
@@ -83,11 +140,14 @@ const App = () => {
 
   const kegTotalDisclosure = useDisclose();
   const [kegTotal, setKegTotal] = useState('');
+  const [sound, setSound] = useState<'Rare' | 'Epic' | 'Regular'>();
 
   useEffect(() => {
     if (!data.stored) {
       AsyncStorage.getItem('data').then(res => {
-        if (res) {
+        if (res === null) {
+          AsyncStorage.setItem('data', JSON.stringify(data));
+        } else {
           setData({...JSON.parse(res), stored: true});
         }
       });
@@ -111,18 +171,31 @@ const App = () => {
 
     if (soundToPlay) {
       soundToPlay.sound.play();
+    } else {
+      const randomSoundIndex = Math.floor(Math.random() * randomSounds.length);
+      randomSounds[randomSoundIndex].play();
+
+      const isRare = rareSounds.includes(randomSounds[randomSoundIndex]);
+      const isEpic = epicSounds.includes(randomSounds[randomSoundIndex]);
+
+      if (isRare || isEpic) {
+        setSound(isEpic ? 'Epic' : 'Rare');
+        setTimeout(() => {
+          setSound(undefined);
+        }, 5000);
+      }
     }
 
-    const now = new Date(),
-      then = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        0,
-        0,
-        0,
-      ),
-      msSinceMidnight = now.getTime() - then.getTime();
+    const now = new Date();
+    const then = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+    );
+    const msSinceMidnight = now.getTime() - then.getTime();
 
     setData(curr => ({
       ...curr,
@@ -155,6 +228,7 @@ const App = () => {
     <NativeBaseProvider theme={customTheme}>
       <Box p={5}>
         <Header
+          playerNames={Object.keys(data.players)}
           onReset={resetCount}
           onAdd={({player, color}) =>
             setData(curr => ({
@@ -248,6 +322,30 @@ const App = () => {
           </Flex>
         </HStack>
       </Box>
+
+      {sound && (
+        <Flex
+          justifyContent={'center'}
+          alignSelf={'center'}
+          bgColor={'gray.500'}
+          position={'absolute'}
+          bottom={20}
+          p={5}
+          alignItems={'center'}
+          rounded={'xl'}>
+          <Image
+            mb={5}
+            rounded={'full'}
+            w={32}
+            h={32}
+            resizeMode={'cover'}
+            source={galvaos[Math.floor(Math.random() * galvaos.length)]}
+            alt={'galvão'}
+          />
+          <Heading>⭐️⭐️⭐️{sound === 'Epic' ? '⭐️⭐️' : ''}️</Heading>
+          <Heading>{sound} Sound!!</Heading>
+        </Flex>
+      )}
     </NativeBaseProvider>
   );
 };
