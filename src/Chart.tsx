@@ -16,8 +16,8 @@ export interface ChartProps {
 }
 
 const day = 86400000;
-const fiveMin = 300000 * 6;
-const fiveIntervals = (day + day / 6) / fiveMin;
+const halfHour = 300000 * 6;
+const fiveIntervals = (day + day / 6) / halfHour;
 
 const Chart = ({data}: ChartProps) => {
   const theme = useTheme();
@@ -40,9 +40,9 @@ const Chart = ({data}: ChartProps) => {
     let currAmount = 0;
 
     return Array.from(Array(fiveIntervals).keys()).map(index => {
-      const currTime = index * fiveMin + (firstDrink - fiveMin * 2);
+      const currTime = index * halfHour + (firstDrink - halfHour * 2);
       const drinkAmount = timeArr.filter(
-        drinkDate => drinkDate > currTime && drinkDate < currTime + fiveMin,
+        drinkDate => drinkDate >= currTime && drinkDate < currTime + halfHour,
       ).length;
 
       currAmount = currAmount + drinkAmount;
@@ -64,7 +64,7 @@ const Chart = ({data}: ChartProps) => {
   });
 
   const labels = Array.from(Array(fiveIntervals).keys()).map(index => {
-    const timePoint = new Date(index * fiveMin + firstDrink);
+    const timePoint = new Date(index * halfHour + firstDrink);
 
     if (index % 2) {
       const hour = timePoint.getUTCHours();

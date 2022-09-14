@@ -1,14 +1,6 @@
 import React, {useState} from 'react';
 import {ColorSchemeType} from 'native-base/lib/typescript/components/types';
-import {
-  Box,
-  Button,
-  Card,
-  FormControl,
-  Heading,
-  Pressable,
-  Text,
-} from 'native-base';
+import {Button, FormControl, Heading, Pressable, Text} from 'native-base';
 
 export interface PlayerCardProps {
   name: string;
