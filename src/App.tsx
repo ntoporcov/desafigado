@@ -281,6 +281,12 @@ const App = () => {
               <Heading size={'2xl'} textAlign={'center'}>
                 {data.total - playersCountTotal}
               </Heading>
+              {Object.values(data.players).length > 0 && (
+                <Heading size={'xs'} textAlign={'center'}>
+                  {Math.ceil(data.total / Object.values(data.players).length)}{' '}
+                  Average
+                </Heading>
+              )}
             </Pressable>
             <Modal {...kegTotalDisclosure}>
               <KeyboardAvoidingView
